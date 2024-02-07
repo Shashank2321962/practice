@@ -1,0 +1,27 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class OccurrenceCounter {
+    public static void main(String[] args) {
+        // Sample input data
+        int[] numbers = {1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3};
+
+        // Create a HashMap to store occurrences
+        Map<Integer, Integer> occurrenceMap = new HashMap<>();
+
+        // Count occurrences of each number
+        for (int num : numbers) {
+            if (occurrenceMap.containsKey(num)) {
+                occurrenceMap.put(num, occurrenceMap.get(num) + 1);
+            } else {
+                occurrenceMap.put(num, 1);
+            }
+        }
+
+        // Print the occurrence count for each number
+        System.out.println("Number\tOccurrences");
+        for (Map.Entry<Integer, Integer> entry : occurrenceMap.entrySet()) {
+            System.out.println(entry.getKey() + "\t\t" + entry.getValue());
+        }
+    }
+}

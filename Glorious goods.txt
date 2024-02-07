@@ -1,0 +1,56 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Good {
+    private String name;
+    private double price;
+    private int quantity;
+
+    public Good(String name, double price, int quantity) {
+        this.name = name;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Good{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                '}';
+    }
+}
+
+public class GloriousGoods {
+    public static void main(String[] args) {
+        List<Good> goodsList = new ArrayList<>();
+
+        // Adding goods to the list
+        goodsList.add(new Good("Book", 10.99, 50));
+        goodsList.add(new Good("Chair", 99.99, 20));
+        goodsList.add(new Good("Laptop", 899.99, 10));
+
+        // Displaying all goods
+        System.out.println("List of Glorious Goods:");
+        for (Good good : goodsList) {
+            System.out.println(good);
+        }
+    }
+}

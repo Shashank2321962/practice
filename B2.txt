@@ -1,0 +1,175 @@
+SQL: Cake Order 
+
+
+select c.cust_name, c.address from customer c join orders o on c.sut_id=o.cust_id
+where o.order_date < date_add(current_date, interval -3 year)
+order by c.cust_name desc;
+
+
+
+select c.cust_name, c.address from customer c join orders o on c.cust_id=o.cust_id
+where o.order_date < current_date - interval '3' year
+order by c.cust_name desc;
+
+-----------------------------
+
+Occurance Count
+
+import java.util.*;
+
+public class Main {
+
+public static void main(String[] args) {
+
+١/١
+
+Scanner s=new Scanner(System.in);
+
+String s1=s.nextLine();
+
+String s2=s.nextLine();
+
+int v=UserMainCode.countWords (s1,s2);
+
+System.out.println(v);
+
+s.close();
+
+}
+
+UserMainCode
+
+import java.util.StringTokenizer;
+
+public class UserMainCode {
+
+public static int countWords(String s1, String s2){
+
+StringTokenizer t=new StringTokenizer(s1,"");
+
+int c=0;
+while(t.hasMoreTokens())
+
+{
+
+String s3=t.nextToken();
+
+if(s3.equals(s2))
+
+C++;
+
+}
+
+return c;
+
+}
+
+-----------------------
+
+Shop for the best AC
+
+
+import java.util.Scanner;
+
+public class ShopForAC {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Get the user's budget
+        System.out.println("What is your budget?");
+        int budget = scanner.nextInt();
+
+        // Get the user's desired features
+        System.out.println("What features are important to you? (e.g., cooling power, energy efficiency, noise level, etc.)");
+        String features = scanner.nextLine();
+
+        // Find the best air conditioner that meets the user's needs and budget
+        // This could involve searching online or visiting a store
+        AC bestAC = findBestAC(budget, features);
+
+        // Print the results to the user
+        System.out.println("The best air conditioner for you is the " + bestAC.getBrand() + " " + bestAC.getModel() + ".");
+        System.out.println("It costs $" + bestAC.getPrice() + ".");
+    }
+
+    private static AC findBestAC(int budget, String features) {
+        // This method would need to be implemented to search for and return the best air conditioner that meets the user's needs and budget
+        return new AC("Brand", "Model", 1000);
+    }
+}
+
+class AC {
+    private String brand;
+    private String model;
+    private int price;
+
+    public AC(String brand, String model, int price) {
+        this.brand = brand;
+        this.model = model;
+        this.price = price;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+}
+
+----------------------------
+
+Glorious Goods 
+
+
+import java.util.Scanner;
+
+public class GloriousGoods {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to Glorious Goods!");
+
+        // Create an array of goods
+        String[] goods = {"Glorious Sword", "Glorious Armor", "Glorious Shield", "Glorious Helmet"};
+
+        // Display the goods to the user
+        System.out.println("Here are our glorious goods:");
+        for (int i = 0; i < goods.length; i++) {
+            System.out.println(i + ". " + goods[i]);
+        }
+
+        // Prompt the user to select a good
+        System.out.println("Which good would you like to purchase?");
+        int selection = scanner.nextInt();
+
+        // Check if the selection is valid
+        if (selection < 0 || selection >= goods.length) {
+            System.out.println("Invalid selection.");
+            return;
+        }
+
+        // Display the selected good
+        System.out.println("You have selected the " + goods[selection] + ".");
+
+        // Prompt the user to confirm their purchase
+        System.out.println("Are you sure you want to purchase this good?");
+        String confirmation = scanner.next();
+
+        // Check if the user confirmed their purchase
+        if (!confirmation.equals("yes")) {
+            System.out.println("Purchase cancelled.");
+            return;
+        }
+
+        // Complete the purchase
+        System.out.println("Thank you for your purchase!");
+    }
+}

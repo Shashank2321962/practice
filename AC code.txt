@@ -1,0 +1,52 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+class AirConditioner {
+    private String model;
+    private double price;
+    private double rating;
+
+    public AirConditioner(String model, double price, double rating) {
+        this.model = model;
+        this.price = price;
+        this.rating = rating;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    @Override
+    public String toString() {
+        return "Model: " + model + ", Price: $" + price + ", Rating: " + rating;
+    }
+}
+
+public class BestAC {
+    public static void main(String[] args) {
+        List<AirConditioner> acList = new ArrayList<>();
+        acList.add(new AirConditioner("AC1", 500.0, 4.5));
+        acList.add(new AirConditioner("AC2", 600.0, 4.8));
+        acList.add(new AirConditioner("AC3", 450.0, 4.2));
+        acList.add(new AirConditioner("AC4", 550.0, 4.6));
+
+        // Sort ACs based on rating
+        Collections.sort(acList, Comparator.comparingDouble(AirConditioner::getRating).reversed());
+
+        // Find the AC with the best rating and lowest price
+        AirConditioner bestAC = acList.get(0);
+        for (AirConditioner ac : acList) {
+            if (ac.getPrice() < bestAC.getPrice()) {
+                bestAC = ac;
+            }
+        }
+
+        System.out.println("Best AC: " + bestAC);
+    }
+}

@@ -1,0 +1,190 @@
+select c.cust_name, c.address from customer c join orders o on c.sut_id=o.cust_id
+where o.order_date < date_add(current_date, interval -3 year)
+order by c.cust_name desc;
+
+-------------------------------------------------
+Occurance
+
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner s=new Scanner(System.in);
+        String s1=s.nextLine();
+        String s2=s.nextLine();
+        int v=UserMainCode.countWords(s1,s2);
+        System.out.println(v);
+        s.close();
+    }
+}
+
+import java.util.StringTokenizer;
+public class UserMainCode {
+    public static int countWords(String s1,String s2){
+        StringTokenizer t=new StringTokenizer(s1, " ");
+        int c=0;
+    }
+}
+
+while(t.hasMoreTokens())
+{
+    String s3=t.nextToken();
+    if(s3.equals(s2))
+        c++;
+}
+return c;
+}
+}
+
+---------------------------------
+Deposit
+
+SELECT
+c.customer_id,
+c.customer_name,
+a.account_number,
+a.account_type,
+a.initial_deposit,
+a.interest
+FROM
+customer_personal_info c
+JOIN
+account_info a ON c.customer_id = a.customer_id
+WHERE
+a.initial_deposit IN (
+    SELECT 
+    MAX(initial_deposit)
+    FROM 
+    account_info 
+)
+ORDER BY 
+c.customer_id ASC;
+
+-------------------------
+
+CUSTOMERS CAKE ORDER----------------
+select c.cust_name,c.address 
+from customer c 
+join orders o on c.cust_id=o.cust_id 
+where o.order_date < date_add(current_date, interval -3 year) 
+order by c.cust_name desc;
+
+--------------------------------------
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+// GloriousGood class
+class GloriousGood {
+    private String name;
+    private double price;
+
+    // Constructor
+    public GloriousGood(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    // Getter methods
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    // Method to display details of the glorious good
+    public void displayDetails() {
+        System.out.println("Name: " + name + ", Price: $" + price);
+    }
+}
+
+// Main class
+public class Main {
+    public static void main(String[] args) {
+        // Create a list to store glorious goods
+        List<GloriousGood> goodsList = new ArrayList<>();
+
+        // Add glorious goods to the list
+        goodsList.add(new GloriousGood("Golden Crown", 1000.0));
+        goodsList.add(new GloriousGood("Diamond Necklace", 2500.0));
+        goodsList.add(new GloriousGood("Ruby Ring", 800.0));
+
+        // Display all glorious goods
+        System.out.println("List of Glorious Goods:");
+        for (GloriousGood good : goodsList) {
+            good.displayDetails();
+        }
+
+        // Calculate total price of all goods
+        double totalPrice = 0;
+        for (GloriousGood good : goodsList) {
+            totalPrice += good.getPrice();
+        }
+        System.out.println("Total Price of Glorious Goods: $" + totalPrice);
+
+        // Remove a glorious good from the list
+        Iterator<GloriousGood> iterator = goodsList.iterator();
+        while (iterator.hasNext()) {
+            GloriousGood good = iterator.next();
+            if (good.getName().equals("Ruby Ring")) {
+                iterator.remove();
+            }
+        }
+
+        // Display updated list of glorious goods
+        System.out.println("\nUpdated List of Glorious Goods:");
+        for (GloriousGood good : goodsList) {
+            good.displayDetails();
+        }
+    }
+}
+
+--------------------------------
+
+// AirConditioner class
+class AirConditioner {
+    private int temperature;
+
+    // Constructor
+    public AirConditioner() {
+        this.temperature = 25; // Default temperature
+    }
+
+    // Method to set the temperature
+    public void setTemperature(int temperature) {
+        this.temperature = temperature;
+    }
+
+    // Method to get the temperature
+    public int getTemperature() {
+        return temperature;
+    }
+
+    // Method to display status
+    public void displayStatus() {
+        System.out.println("Current temperature is " + temperature + "°C");
+    }
+}
+
+// Main class
+public class Main {
+    public static void main(String[] args) {
+        // Create an instance of the AirConditioner class
+        AirConditioner ac = new AirConditioner();
+
+        // Display default status
+        System.out.println("Default status:");
+        ac.displayStatus();
+
+        // Set the temperature
+        ac.setTemperature(20);
+
+        // Display updated status
+        System.out.println("\nUpdated status:");
+        ac.displayStatus();
+    }
+}
+
+-----------------------------------------
