@@ -1,0 +1,1129 @@
+				Daily checks mail
+
+### To establish connection with RDS post the upgrades
+
+  sample incident - INC1196994 ->pg admin 4 upgrade version 5.4 to 6.17 
+
+-----------------
+
+Checklist for morning activities : 
+
+https://docs.google.com/spreadsheets/d/1UWMy6TLmd4WKHS71AxcQydMc9xqliz8J6yocoNJpN08/edit#gid=0
+ 
+---------------
+
+1. BAA tracker
+
+mail:FTO-BASKET-ADAPTER-AGENT-ERROR-TASK-PROD
+
+https://docs.google.com/spreadsheets/d/1RlCq1uRc2Sp1M4bPYzW2tckupoI3WUEJhLDFS7wUAcU/edit
+
+
+***********************P1/P2 report*************************
+
+2. P1/P2 report:(Done before 7.30)(Get reports from retail and marketing team)
+
+i. Servicenow->dashboard->P1,P2 report>>download in csv and Copy all the details and put in the below sheet:
+https://docs.google.com/spreadsheets/d/1Vh1dJnF7S4MRnngUiJMo8E_VhXpSasx2DfR2gq1Z-ts/edit?gid=0#gid=0
+ii. We have to get reports from Marketing and retail team reports
+iii. Make the table and send the mail
+
+{INFO BasketAdapterEventsJob -----> Food to Order
+FOLI-SUPPLYCHAIN-PO-ADAPTER-TASK-prod ------> Groceries
+STOCK-TRANSFER-SHIPMENT-TASK-RECEIPT -------> Store Pick
+FEED-VALIDATION-ADAPTER-TASK-prod-ERROR-LATE_FILE_ERRORDetail: Groceries}
+Groceries; MLN mapping missing in Ocado master tableDetail:PO number - 3079949 is failed because the system could not find the mapping in the Ocado master table against ML
+
+iv. Send mail, copy from draft(in:sent)
+
+************************P1/P2 report done*************************
+
+*************************Item range backup and workaround*************************
+
+
+3."Item range backup and workaround"(Before 9.30AM)
+   ================================
+   
+Backup:
+query
+SELECT ocado_item_range_id, ocado_sku_nbr, min, pin, legacy_sku_nbr, item_desc, units_per_case, ini_flg, cfc_id, status, error, retry_cnt, created_dt, updated_dt, department_id         FROM online.ocado_item_range         where status in ('fatal','invalid') and error in ('404:Item not found','LEGACY OR MIN EMPTY IN FILE','404.19.001 : Item not found','INVALID MIN','INVALID PIN');
+
+Item Range Table Errored Record:
+https://docs.google.com/spreadsheets/d/1f93rVGuy3UAKs58S5CJGuSUHrZC-bXyVWgD0MP-_vi8/edit#gid=248531722
+
+*** 2 screenshot needed :
+
+
+
+i.  Item Range Table: Before
+ii. Item Range Table: After
+
+
+old thing not in use now
+
+SELECT ocado_item_range_id, ocado_sku_nbr, min, pin, legacy_sku_nbr, item_desc, units_per_case, ini_flg, cfc_id, status, error, retry_cnt, created_dt, updated_dt, department_id         FROM online.ocado_item_range         where status in ('fatal','invalid') and error in ('404:Item not found','LEGACY OR MIN EMPTY IN FILE','404.19.001 : Item not found','INVALID MIN','INVALID PIN');
+SELECT ocado_item_range_id, ocado_sku_nbr, min, pin, legacy_sku_nbr, item_desc, units_per_case, ini_flg, cfc_id, status, error, retry_cnt, created_dt, updated_dt, department_id         FROM online.ocado_item_range         where status in ('fatal','invalid') and error in ('404:Item not found','LEGACY OR MIN EMPTY IN FILE','404.19.001 : Item not found','INVALID MIN','INVALID PIN');
+
+Sheet : https://docs.google.com/spreadsheets/d/14iG93Ayxm-orFbLhasndTbBLbL9UiBH5Tj-M3fGVo60/edit#gid=0
+
+Note : download this and open sheet (SOS_tracker_reprocessing) and fill in right side link of this query all the details
+
+-------------
+
+1  step :
+
+>>>>>>>>select   status,error,count(*) from online.ocado_item_range
+where status<>'active'
+group by  status,error
+order by 1,2,3<<<<<<<<<<<<
+
+select   status,error,count(*) from online.ocado_item_range
+group by  status,error
+order by 1,2,3
+
+(After Query took screenshot)
+---------
+
+2.  step :
+
+ UPDATE ONLINE.OCADO_ITEM_RANGE
+SET STATUS = 'active', 
+   ERROR = '', 
+   PIN = '',updated_dt=now() 
+WHERE STATUS <> 'active'
+   AND ERROR like '%INVALID%PIN%' 
+   AND MIN = PIN
+
+------------
+
+3. step :
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100567899',pin='100868261' where legacy_sku_nbr = '0150002' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108664247',pin='108664255' where legacy_sku_nbr = '0184950' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112661532',pin='112661567' where legacy_sku_nbr = '0187312' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112541661',pin='112541670' where legacy_sku_nbr = '0189600' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107459111',pin='107459129' where legacy_sku_nbr = '0415583' and status<>'active'; 
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100567899',pin='100868261' where legacy_sku_nbr = '0150002' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108664247',pin='108664255' where legacy_sku_nbr = '0184950' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112661532',pin='112661567' where legacy_sku_nbr = '0187312' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112541661',pin='112541670' where legacy_sku_nbr = '0189600' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107459111',pin='107459129' where legacy_sku_nbr = '0415583' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110948311',pin='110948345' where legacy_sku_nbr = '0505468' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109063478',pin='109730736' where legacy_sku_nbr = '0530389' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113030468',pin='113089700' where legacy_sku_nbr = '0600611' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113227252',pin='113227261' where legacy_sku_nbr = '0690400' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113227287',pin='113227295' where legacy_sku_nbr = '0690401' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105184011',pin='' where legacy_sku_nbr = '0699870' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111443605',pin='113344125' where legacy_sku_nbr = '0810720' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111293379',pin='111293408' where legacy_sku_nbr = '0814426' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100685035',pin='112296176' where legacy_sku_nbr = '0850644' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110001750',pin='110001768' where legacy_sku_nbr = '0853634' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108405093',pin='' where legacy_sku_nbr = '0894043' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108331987',pin='' where legacy_sku_nbr = '0940822' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105286439',pin='' where legacy_sku_nbr = '0942978' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='101789119',pin='' where legacy_sku_nbr = '0942985' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='101680501',pin='' where legacy_sku_nbr = '2160368' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108042211',pin='' where legacy_sku_nbr = '2162041' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105070347',pin='' where legacy_sku_nbr = '2162042' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108272569',pin='' where legacy_sku_nbr = '2164708' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108273377',pin='' where legacy_sku_nbr = '2164710' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111515824',pin='111515832' where legacy_sku_nbr = '4548999' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111515859',pin='111515867' where legacy_sku_nbr = '4549000' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112138688',pin='112138696' where legacy_sku_nbr = '5480230' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='106459055',pin='' where legacy_sku_nbr = '0690902' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104209132',pin='109883396' where legacy_sku_nbr = '0280087' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '4900241' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112511374',pin='' where legacy_sku_nbr = '4688135' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113028923',pin='113028931' where legacy_sku_nbr = '0760088' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112580441',pin='112580468' where legacy_sku_nbr = '0331003' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112499424',pin='112729082' where legacy_sku_nbr = '0129856' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110043511',pin='110043520' where legacy_sku_nbr = '5430559' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112625275',pin='112625312' where legacy_sku_nbr = '0779807' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '2940821' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107665408',pin='111048488' where legacy_sku_nbr = '0738059' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '4762991' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112298526',pin='' where legacy_sku_nbr = '4011809' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112617232',pin='112652020' where legacy_sku_nbr = '0504660' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109585680',pin='109585698' where legacy_sku_nbr = '0470492' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112919492',pin='112919521' where legacy_sku_nbr = '0578887' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104740100',pin='' where legacy_sku_nbr = '4688231' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107750127',pin='107868694' where legacy_sku_nbr = '0698291' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108471331',pin='110302202' where legacy_sku_nbr = '5420338' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107518504',pin='107827260' where legacy_sku_nbr = '0790185' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0559197' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112429469',pin='112429477' where legacy_sku_nbr = '5440348' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112429434',pin='112429442' where legacy_sku_nbr = '5440353' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112431593',pin='112431606' where legacy_sku_nbr = '5440349' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112429506',pin='112429514' where legacy_sku_nbr = '5440350' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112430275',pin='112430283' where legacy_sku_nbr = '5440351' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104812337',pin='104812345' where legacy_sku_nbr = '0191005' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112026889',pin='112026897' where legacy_sku_nbr = '4660026' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107942065',pin='' where legacy_sku_nbr = '2581753' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0187373' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0187374' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111347921',pin='111347947' where legacy_sku_nbr = '2540062' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0790359' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111854842',pin='111854869' where legacy_sku_nbr = '4945478' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105437268',pin='109082273' where legacy_sku_nbr = '4629004' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111865453',pin='111865496' where legacy_sku_nbr = '0840595' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112091285',pin='112091306' where legacy_sku_nbr = '0850140' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0659543' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111770981',pin='' where legacy_sku_nbr = '4621097' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111837401',pin='' where legacy_sku_nbr = '4672123' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108389100',pin='112786280' where legacy_sku_nbr = '5480255' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108847406',pin='109053430' where legacy_sku_nbr = '2046722' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110793777',pin='110793785' where legacy_sku_nbr = '0683237' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0654835' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112053060',pin='112053078' where legacy_sku_nbr = '0250037' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108015343',pin='108015351' where legacy_sku_nbr = '4973403' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111293467',pin='111293491' where legacy_sku_nbr = '0814427' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111837321',pin='' where legacy_sku_nbr = '4672117' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112692304',pin='112692312' where legacy_sku_nbr = '0779529' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112037182',pin='112037203' where legacy_sku_nbr = '4660592' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112119436',pin='112119444' where legacy_sku_nbr = '0231177' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110764298',pin='111114123' where legacy_sku_nbr = '0943107' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111837364',pin='' where legacy_sku_nbr = '4672119' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110864774',pin='110864811' where legacy_sku_nbr = '0180166' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0470006' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111779539',pin='111779571' where legacy_sku_nbr = '0184020' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111708423',pin='111708431' where legacy_sku_nbr = '0460652' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0992340' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108711808',pin='108711816' where legacy_sku_nbr = '0890010' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113379432',pin='113414314' where legacy_sku_nbr = '4700231' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0701003' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111815991',pin='111816002' where legacy_sku_nbr = '0183813' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109348633',pin='' where legacy_sku_nbr = '4910166' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105273312',pin='105273339' where legacy_sku_nbr = '0189046' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100756489',pin='100858688' where legacy_sku_nbr = '0820053' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='103056621',pin='103177159' where legacy_sku_nbr = '0400554' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111626516',pin='111626541' where legacy_sku_nbr = '0845310' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109998919',pin='109998927' where legacy_sku_nbr = '0505779' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='103071979',pin='103188675' where legacy_sku_nbr = '0401265' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109707958',pin='109707966' where legacy_sku_nbr = '0452065' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '2111021' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105275182',pin='105275191' where legacy_sku_nbr = '0189024' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111768098',pin='111768101' where legacy_sku_nbr = '0183832' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111269256',pin='111555121' where legacy_sku_nbr = '2042088' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112179551',pin='112270718' where legacy_sku_nbr = '4738328' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111771001',pin='' where legacy_sku_nbr = '4621100' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100387177',pin='111154504' where legacy_sku_nbr = '0183681' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111806656',pin='111806664' where legacy_sku_nbr = '3410013' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111771043',pin='' where legacy_sku_nbr = '4621094' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112746691',pin='112746704' where legacy_sku_nbr = '2039494' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111927802',pin='111927829' where legacy_sku_nbr = '2040175' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111650655',pin='111650698' where legacy_sku_nbr = '0502404' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104742287',pin='111959169' where legacy_sku_nbr = '0990007' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110517721',pin='110517730' where legacy_sku_nbr = '0330412' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104777025',pin='' where legacy_sku_nbr = '4604100' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111927870',pin='111927896' where legacy_sku_nbr = '2040182' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112545831',pin='112545865' where legacy_sku_nbr = '0504681' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0280222' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '0550186' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111871589',pin='111871618' where legacy_sku_nbr = '2040165' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112393945',pin='112393953' where legacy_sku_nbr = '0990353' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105061580',pin='105061619' where legacy_sku_nbr = '0104368' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '4700718' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '2581741' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111060604',pin='111060621' where legacy_sku_nbr = '0508855' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108293933',pin='108293950' where legacy_sku_nbr = '0420076' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='103063952',pin='103184965' where legacy_sku_nbr = '0622030' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108185983',pin='108186003' where legacy_sku_nbr = '0684790' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111854789',pin='111854826' where legacy_sku_nbr = '0980008' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109350194',pin='109350207' where legacy_sku_nbr = '4700890' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112541696',pin='112541709' where legacy_sku_nbr = '0189602' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111871239',pin='111871298' where legacy_sku_nbr = '2040169' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107942022',pin='' where legacy_sku_nbr = '2581745' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107607806',pin='' where legacy_sku_nbr = '0770085' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111269096',pin='111541416' where legacy_sku_nbr = '2042082' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111611402',pin='111611453' where legacy_sku_nbr = '0251830' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105718254',pin='111798342' where legacy_sku_nbr = '0340320' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112661612',pin='112661647' where legacy_sku_nbr = '0187313' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111528123',pin='111528174' where legacy_sku_nbr = '4546002' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111903940',pin='111903958' where legacy_sku_nbr = '0990011' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108382127',pin='108382151' where legacy_sku_nbr = '0189179' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104770886',pin='' where legacy_sku_nbr = '4679145' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='102410625',pin='' where legacy_sku_nbr = '4910366' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105534359',pin='109176149' where legacy_sku_nbr = '4629005' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111880709',pin='111880776' where legacy_sku_nbr = '0990005' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108415961',pin='108415970' where legacy_sku_nbr = '0689200' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108514724',pin='108514741' where legacy_sku_nbr = '2422101' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110995715',pin='110995723' where legacy_sku_nbr = '0830082' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108278557',pin='109930658' where legacy_sku_nbr = '0476654' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111837348',pin='' where legacy_sku_nbr = '4672115' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104720619',pin='104734711' where legacy_sku_nbr = '2421158' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '4688836' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111885420',pin='111885454' where legacy_sku_nbr = '0189006' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105008543',pin='108283794' where legacy_sku_nbr = '0857115' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109707982',pin='109707991' where legacy_sku_nbr = '0452066' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112169097',pin='112169126' where legacy_sku_nbr = '0820043' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111871095',pin='111871159' where legacy_sku_nbr = '2040166' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112541750',pin='112541768' where legacy_sku_nbr = '0189606' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107601172',pin='' where legacy_sku_nbr = '4912010' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105659320',pin='105659338' where legacy_sku_nbr = '0189114' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109057983',pin='109057991' where legacy_sku_nbr = '2704284' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108848409',pin='109413052' where legacy_sku_nbr = '0280314' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110479391',pin='' where legacy_sku_nbr = '4677026' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110453123',pin='110453131' where legacy_sku_nbr = '0855726' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112131371',pin='112131443' where legacy_sku_nbr = '0551659' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109579829',pin='109579845' where legacy_sku_nbr = '0703402' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111870332',pin='111870383' where legacy_sku_nbr = '2040163' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='101632234',pin='101756894' where legacy_sku_nbr = '2425402' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108848433',pin='109422784' where legacy_sku_nbr = '0280313' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107459111',pin='107459129' where legacy_sku_nbr = '0419164' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111011116',pin='111011124' where legacy_sku_nbr = '0550027' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110739455',pin='111847343' where legacy_sku_nbr = '4947529' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110778121',pin='110834225' where legacy_sku_nbr = '0432202' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111034836',pin='111047426' where legacy_sku_nbr = '0540371' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110739421',pin='111848021' where legacy_sku_nbr = '4942053' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110832406',pin='110832414' where legacy_sku_nbr = '0185672' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111479448',pin='111479464' where legacy_sku_nbr = '2941048' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111595107',pin='111595123' where legacy_sku_nbr = '4940099' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111611390',pin='111611411' where legacy_sku_nbr = '0864811' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111296684',pin='111296721' where legacy_sku_nbr = '0229005' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '4011757' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='',pin='' where legacy_sku_nbr = '3030464' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109708011',pin='109708029' where legacy_sku_nbr = '0452067' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104729517',pin='' where legacy_sku_nbr = '4688191' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113366244',pin='113548822' where  legacy_sku_nbr = '0620430' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105776497',pin='105776500' where  legacy_sku_nbr = '3410125' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108392173',pin='108586269' where  legacy_sku_nbr = '5421284' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111426776',pin='111426784' where  legacy_sku_nbr = '0964054' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112787274',pin='112787282' where  legacy_sku_nbr = '2304903' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113121749',pin='113121757' where  legacy_sku_nbr = '0471251' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112886686',pin='113564857' where  legacy_sku_nbr = '0777687' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113472557',pin='113472565' where  legacy_sku_nbr = '2092722' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113528151',pin='113528160' where  legacy_sku_nbr = '0080921' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112836806',pin='112836822' where  legacy_sku_nbr = '5501357' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113553710',pin='113553728' where  legacy_sku_nbr = '0103522' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105626552',pin='109284393' where  legacy_sku_nbr = '0332040' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111144402',pin='111144429' where  legacy_sku_nbr = '0182833' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='110088605',pin='110088613' where  legacy_sku_nbr = '0542214' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100763814',pin='113639855' where  legacy_sku_nbr = '0827876' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113553664',pin='113553681' where  legacy_sku_nbr = '0103521' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111012522',pin='111012531' where  legacy_sku_nbr = '0251743' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104567141',pin='104567159' where  legacy_sku_nbr = '0472874' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111083566',pin='111259031' where  legacy_sku_nbr = '0228038' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109415752',pin='110844950' where  legacy_sku_nbr = '0229223' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108384771',pin='108650056' where  legacy_sku_nbr = '5422401' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108314651',pin='108314757' where  legacy_sku_nbr = '5431478' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108409220',pin='113712979' where  legacy_sku_nbr = '5480285' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111452632',pin='111452641' where  legacy_sku_nbr = '0470310' and status<>'active';
+ 
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100405620',pin='100502761' where  legacy_sku_nbr = '0347400' and status<>'active';
+ 
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107306579',pin='107305648' where  legacy_sku_nbr = '0871846' and status<>'active';
+ 
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111074651',pin='111074660' where  legacy_sku_nbr = '2710167' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='106460427',pin='' where  legacy_sku_nbr = '0690903' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112886686',pin='113564857' where  legacy_sku_nbr = '0777687' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113553710',pin='113553728' where  legacy_sku_nbr = '0103522' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104567141',pin='104567159' where  legacy_sku_nbr = '0472874' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='111203855',pin='111203863' where  legacy_sku_nbr = '2460122' and status<>'active';
+
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113472557',pin='113472565' where  legacy_sku_nbr = '2092722' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113606965',pin='113606981' where  legacy_sku_nbr = '0241179' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113588701',pin='113723766' where  legacy_sku_nbr = '2100998' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105516687',pin='108175267' where  legacy_sku_nbr = '0386659' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108305172',pin='113647249' where  legacy_sku_nbr = '5420716' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112964998',pin='112965018' where  legacy_sku_nbr = '0798737' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100130363',pin='100213417' where  legacy_sku_nbr = '0387099' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100130216',pin='100213265' where  legacy_sku_nbr = '0387050' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109257651',pin='109257660' where  legacy_sku_nbr = '0559175' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112965114',pin='112965131' where  legacy_sku_nbr = '0798735' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='100130574',pin='100213636' where  legacy_sku_nbr = '0554904' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113897715',pin='113897740' where  legacy_sku_nbr = '0894463' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113227711',pin='113227720' where  legacy_sku_nbr = '0731633' and status<>'active';
+
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='101789119',pin='' where  legacy_sku_nbr = '0942985' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107518504',pin='107827260' where  legacy_sku_nbr = '0790185' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='109063478',pin='109730736' where  legacy_sku_nbr = '0530389' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='108471331',pin='110302202' where  legacy_sku_nbr = '5420338' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='104740100',pin='' where  legacy_sku_nbr = '4688231' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='107750127',pin='107868694' where  legacy_sku_nbr = '0698291' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='112499424',pin='112729082' where  legacy_sku_nbr = '0129856' and status<>'active';
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105184011',pin='' where  legacy_sku_nbr = '0699870' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105286439',pin='' where  legacy_sku_nbr = '0942978' and status<>'active';
+
+
+
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='101789119',pin='' where  legacy_sku_nbr = '0942985' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105286439',pin='' where  legacy_sku_nbr = '0942978' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='105739397',pin='109154265' where  legacy_sku_nbr = '4668844' and status<>'active';
+Update online.ocado_item_range set status='active', error= '', retry_cnt=0,min='113942678',pin='113942686' where  legacy_sku_nbr = '0530091' and status<>'active';
+----------------------------
+(Get MIN PIN from decodegui)(product number is sku number)
+dodegui: http://10.4.224.107:8080/ords/f?p=104:1
+
+LEGACY OR MIN EMPTY IN FILE:
+select * from online.ocado_item_range
+where error = 'LEGACY OR MIN EMPTY IN FILE'
+
+If MIN<6:
+select * from online.ocado_item_range
+where error = 'INVALID MIN'
+
+If PIN!=0:
+select * from online.ocado_item_range
+where error = 'INVALID PIN'
+
+
+*************************Item range backup and workaround done*************************
+
+***************
+
+
+113897715	113897740	28462	0894463
+----------
+113227711	113227720	28483	0731633
+
+
+105516687	108175267	3157	0386659
+108305172	113647249	2725	5420716
+112964998	112965018	2736	0798737
+100130363	100213417	10987	0387099
+
+100130216	100213265	24371	0387050
+109257651	109257660	9819	0559175
+
+
+112965114	112965131	2736	0798735
+100130574	100213636	3157	0554904
+*******
+
+PIN
+
+
+
+-------------
+113942678	113942686	15318	0530091
+"0080026"
+"0000066"
+"0081239"
+"0032810"
+"0530091"
+"0000666"
+"0073818"
+
+105739397	109154265	24550	4668844
+
+105286439	None	11553	0942978
+105184011	None	24421	0699870
+101789119	None	11553	0942985
+112499424	112729082	1391000	0129856
+
+107750127	107868694	10263	0698291
+
+104740100	None	11155	4688231
+
+108471331	110302202	2725	5420338
+
+109063478	109730736	38994	0530389
+
+
+107518504	107827260	2736	0790185
+101789119	None	11553	0942985
+****invalid min*****
+
+"legacy_sku_nbr"
+"0386659"
+"5420716"
+"0798737"
+"0080026" n =not found in  decode gui
+"0000066" n
+"0387099"
+"0025438" n
+"0081239" n
+"0387050"
+"0559175"
+"0798735"
+"0032810"
+"0554904"
+"0000666" n
+"0073818" n
+
+
+"legacy_sku_nbr"
+"0080026" -D
+"0000066"-D
+"0025438"-D
+"0081239"--D
+"0894463"-
+"0032810"-
+"0000666"-
+"0073818"-
+
+
+
+
+
+
+
+
+min		  pin			sku no     
+112886686	113564857	2736	0777687
+113553710	113553728	1549000	0103522
+					"0080026"
+					"0000066"
+					0025438
+					0081239
+					0032810
+					0000666
+					0073818
+104567141	104567159	2902	0472874
+
+
+
+
+"legacy_sku_nbr"
+"0080026"
+"0000066"
+"0081239"
+"4679145"
+"4548999"
+"2704284"
+"0559175"
+"0990007"
+"2304903"
+"0798737"
+
+
+
+"0280314"
+"3410125"
+"2040165"
+"2100998"
+"0689200"
+"2040175"
+"0470310"
+"0472874"
+"0990011"
+"2421158"
+"4910366"
+"4672123"
+"0419164"
+"4621097"
+"0420076"
+"0871846"
+"2710167"
+"0103522"
+"4672115"
+"0731633"
+"0189602"
+"3410013"
+"2039494"
+"0452067"
+"0387099"
+"0505468"
+"0340320"
+"0228038"
+"5420716"
+"0798735"
+"4546002"
+"0690401"
+"0550027"
+"0347400"
+"0241179"
+"4910166"
+"4672119"
+"0814426"
+"2460122"
+"4629005"
+"0777687"
+"0189006"
+"0964054"
+"4621100"
+"0460652"
+"0184020"
+"0182833"
+"4738328"
+"0251743"
+"0864811"
+"4621094"
+"0476654"
+"0452066"
+"0540371"
+"0471251"
+"2042082"
+"2040163"
+"2092722"
+"2040166"
+"0810720"
+"0990005"
+"4688191"
+"0189606"
+"2040169"
+"0554904"
+"0840595"
+"0150002"
+"0032810"
+"0000666"
+"0073818"
+-------
+
+
+******legacy or min empty in file	****
+
+
+
+			
+
+111203855	111203863	2968	2460122   
+113472557	113472565	1809009	2092722
+113606965	113606981	34174	0241179
+113588701	113723766	38256	2100998
+
+"0942985"
+"0790185"
+"0530389"
+"5420338"
+"4688231"
+"0698291"
+"0129856"
+"0942985"
+"0699870"
+"0942978"
+"0942978"
+------
+
+********************* Item range steps done ************************************************
+
+
+
+		***********************Sales Reprocessing ********************* 
+*** 3 screenshot needed :
+
+1. sales value 
+2. order count 
+3. updated sales count by dummy id
+
+
+
+1. Run the below query to get the latest watermark number
+ 
+select * from sales.ocado_landing_metadata where process_name ='OCADO_SALES_LANDING' ;
+
+select sum(net_amt) as sales_value from sales.ocado_sales_landing
+where ocado_sales_landing_id >1827222768 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null;
+
+select count(*) as order_count from (select distinct trx_nbr from sales.ocado_sales_landing
+where ocado_sales_landing_id >1825449017 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null) a;
+
+
+select * from sales.ocado_sales_landing where ocado_sales_landing_id >1825449017 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null;
+
+
+UPDATE sales.ocado_sales_landing
+set ocado_prmtn_id='9999999999',mor_prmtn_id='-1'
+where ocado_sales_landing_id >1825449017 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null;
+
+
+Date :22/02   --> lowerdt_key:    ---->upperdt_key:   ------>watermark_no : 1827222768     
+
+
+
+2. Run the below query to get the sales value
+
+select sum(net_amt) as sales_value from sales.ocado_sales_landing
+where ocado_sales_landing_id >1827222768 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null;
+
+
+3. Run the below query to get the order count
+
+select count(*) as order_count from (select distinct trx_nbr from sales.ocado_sales_landing
+where ocado_sales_landing_id >1825449017 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null) a;
+
+
+
+
+4.  Run the below query to get the count of sales missing OCADO & MORRISIONS PROMO ID
+ 
+select * from sales.ocado_sales_landing where ocado_sales_landing_id >1825449017 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null;
+
+8308 rows affected.
+4913 rows affected.
+7160 rows affected.
+2920 rows affected.
+
+14/02/2024 ---  6745 rows affected.
+Successfully run. Total query runtime: 609 msec.
+16/02/2024  5618 rows affected.
+
+19/02/2024  2920 rows affected.
+		
+20/02/2024 9798 rows affected.
+12024 rows affected.
+5. Run the below query to make sure above orders are not present in basket table
+ 
+with x as
+(select trx_nbr from sales.ocado_sales_landing where ocado_sales_landing_id >1825449017
+)
+select b.* from  sales.ocado_sales_basket b,x
+where b.trx_nbr=x.trx_nbr;
+
+6. Run the below query to update the missing OCADO & MORRISIONS PROMO ID with dummy ID
+ 
+UPDATE sales.ocado_sales_landing
+set ocado_prmtn_id='9999999999',mor_prmtn_id='-1'
+where ocado_sales_landing_id >1825449017 and prmtn_amt>0 and ocado_prmtn_id is null and mor_prmtn_id is null;
+
+7. After the completion of 3 AM ocado-sales-basketgateway-adapter-task, run the below query below to make sure all the orders are completed in basket table
+ 
+select date(processing_time),error,sales_status, count(*) from sales.ocado_sales_basket where trx_typ='SALE' and date(processing_time) = current_date
+group by date(processing_time),error,sales_status
+
+
+------
+
+				MASKED PRODUCT COUNT
+
+SELECT count(*) FROM storepick_aui.product_masking where date(last_update_date_time) = CURRENT_DATE-1;
+
+-----
+
+				FTO CHECKS: BASKET SERVICE
+
+select date(created_date), count(*) from basketservicev2schema.baskets where organisation = 'FTO'
+and date(created_date)>=current_date-8 group by date(created_date) order by 1 desc
+
+-----
+
+				FTO CHECKS: ORDER SYNC TRACKER
+f
+select date(created_date),order_sync_status, count(*) from fto_order_sync.order_sync_tracker
+where date(created_date)>=current_date-8 group by date(created_date),order_sync_status
+order by 1 desc,2 limit 70
+
+
+
+-----
+				OCADO INBOUND FEED TREND QUERY
+
+Check table : File_config and DB : Online
+
+
+SELECT DISTINCT DATE(A.PROCESSING_TIME),
+	A.FILE_CONFIG_ID,
+	B.FILE_PATTERN,
+	(CASE
+						WHEN A.FILE_CONFIG_ID = 847 THEN 'adjustments'
+						WHEN A.FILE_CONFIG_ID = 755 THEN 'authorized_refunds'
+						WHEN A.FILE_CONFIG_ID = 757 THEN 'scms_customer_membership'
+						WHEN A.FILE_CONFIG_ID = 855 THEN 'forecast-orders'
+						WHEN A.FILE_CONFIG_ID = 754 THEN 'global discount'
+						WHEN A.FILE_CONFIG_ID = 762 THEN 'General Merchandise '
+						WHEN A.FILE_CONFIG_ID = 910 THEN 'receipt'
+						WHEN A.FILE_CONFIG_ID = 848 THEN 'issue'
+						WHEN A.FILE_CONFIG_ID = 756 THEN 'non order payment'
+						WHEN A.FILE_CONFIG_ID = 908 THEN 'non order refunds'
+						WHEN A.FILE_CONFIG_ID = 758 THEN 'payments'
+						WHEN A.FILE_CONFIG_ID = 849 THEN 'payments'
+						WHEN A.FILE_CONFIG_ID = 853 THEN 'Purchase order'
+						WHEN A.FILE_CONFIG_ID = 924 THEN 'frozen Purchase order'
+						WHEN A.FILE_CONFIG_ID = 925 THEN 'stock-availability'
+						WHEN A.FILE_CONFIG_ID = 852 THEN 'Product range online'
+						WHEN A.FILE_CONFIG_ID = 927 THEN 'Product range frozen'
+						WHEN A.FILE_CONFIG_ID = 751 THEN 'promotion'
+						WHEN A.FILE_CONFIG_ID = 850 THEN 'purge'
+						WHEN A.FILE_CONFIG_ID = 752 THEN 'Sales'
+						WHEN A.FILE_CONFIG_ID = 753 THEN 'service charge'
+						WHEN A.FILE_CONFIG_ID = 854 THEN 'stock-receipt'
+						ELSE 'others'
+		END) AS FEED_NAME,
+	B.FILE_GROUP,
+	A.STATUS,
+	COUNT(*)
+FROM ONLINE.FILE_PROCESSING A,
+	ONLINE.FILE_CONFIG B
+WHERE DATE(A.PROCESSING_TIME) = CURRENT_DATE-1
+	AND A.FILE_CONFIG_ID = B.FILE_CONFIG_ID
+	AND B.FILE_CONFIG_ID in (847,
+																											755,
+																											757,
+																											855,
+																											754,
+																											762,
+																											910,
+																											848,
+																											756,
+																											908,
+																											758,
+																											849,
+																											853,
+																											924,
+																											925,
+																											852,
+																											927,
+																											751,
+																											850,
+																											752,
+																											753,
+																											854,749)
+GROUP BY DATE(A.PROCESSING_TIME),
+	A.FILE_CONFIG_ID,
+	B.FILE_PATTERN,
+	FEED_NAME,
+	B.FILE_GROUP,
+	A.STATUS
+ORDER BY 2,1
+
+-----
+
+				OCADO INBOUND FEED TREND SHEET
+
+https://docs.google.com/spreadsheets/d/1MtKs7RZYCbz4bZGlcJKUshrWFzceWYAmT2P4yHUYUs0/edit#gid=0
+
+-----
+
+				DAILY HEALTH CHECK
+
+prod-m-ordering -->  cloudwatch -->  log groups --> sales-file-generator-task-prod --> all events --> DCLOSE(12hr)1day
+
+-----
+
+
+				AGGREGATOR TASK after 9,10am
+
+https://eu-west-1.console.aws.amazon.com/ecs/v2/clusters/ecs-euw1-p-digital-vpc001-common-001/services/svc-euw1-prd-storepick-return-aggregator-001/health?region=eu-west-1
+ 
+https://eu-west-1.console.aws.amazon.com/ecs/v2/clusters/ecs-euw1-p-digital-vpc001-common-001/services/svc-euw1-prd-storepick-location-aggregator-001/health?region=eu-west-1
+
+prod digital -> ECS -> Clusters -> ecs-euw1-p-digital-vpc001-common-001 -> return-> svc-euw1-prd-storepick-return-aggregator-001
+prod digital -> ECS -> Clusters -> ecs-euw1-p-digital-vpc001-common-001 ->location-> svc-euw1-prd-storepick-location-aggregator-001
+
+-----
+
+				MANIFEST FILES
+
+https://s3.console.aws.amazon.com/s3/buckets/mprd.xxwmm.online.frozen.nktiqejhbg?region=eu-west-1&prefix=outbound/manifest/pending/&showversions=false
+ 
+https://s3.console.aws.amazon.com/s3/buckets/mprd.xxwmm.online.frozen.nktiqejhbg?region=eu-west-1&prefix=outbound/erithManifest/pending/&showversions=false
+ 
+
+prod online -> S3 -> frozen or mprd.xxwmm.online.frozen.nktiqejhbg -> outbound -> erithmanifest -> pending -> Morrisons280624(Today's date)
+prod online -> S3 -> frozen or mprd.xxwmm.online.frozen.nktiqejhbg -> outbound -> manifest -> pending -> Morrisons261024(Today's date) DD/MM/YY
+
+-----
+
+
+
+
+************p1/p2  links ***********
+
+
+1. P1/P2 REPORT INCIDENTS
+ 
+https://morrisons.service-now.com/now/nav/ui/classic/params/target/%2Fincident_list.do%3Fsysparm_query%3Dassignment_group%253Df0a595191befe8106382a75b234bcbfa%255Eopened_atBETWEENjavascript%3Ags.dateGenerate%28%25272022-02-10%2527%252C%252707%3A00%3A00%2527%29%40javascript%3Ags.dateGenerate%28%25272022-02-11%2527%252C%252707%3A00%3A00%2527%29%26sysparm_first_row%3D1%26sysparm_view%3D 
+ 
+ 
+2. P1/P2 REPORT AND SUMMARY
+ 
+https://docs.google.com/spreadsheets/d/1Vh1dJnF7S4MRnngUiJMo8E_VhXpSasx2DfR2gq1Z-ts/edit#gid=0
+
+
+
+**************************** Derange detail steps *************************
+ 
+Hi Everyone: FYI- URGENT : Daily Deranged SEL Report & Online reconciliation
+
+get the derange details from the above mentioned mail subject before 10:30am IST and raise an incident with l1.5 Team to derange it before 11:30PM IST
+
+sample inc:deranging INC1158149  range sample inc : INC1198957 
+
+if they not send the details before 11:30am. plz ask in the mail to send derange list. Thanks
+
+During weekend also this activity must be performed.
+
+Link: 
+
+https://morrisons.service-now.com/now/nav/ui/classic/params/target/incident_list.do%3Fsysparm_query%3Dassignment_group%253Df0a595191befe8106382a75b234bcbfa%255Estate!%253D7%255Estate!%253D6%26sysparm_first_row%3D1%26sysparm_view%3D
+
+
+
+
+Sample Description for deranging incident
+
+Assignment group DIG-COGNZ
+Business Impact   Resolved - VF Investigation ongoingfalse
+Category   Software
+Channel   Self logged
+Description  Hi L1.5 Team- Can you please Derange the below listed items before 12:30PM IST
+Impact3 - Multiple Users / Dept
+Location   Hilmore House
+No Knowledge Found  false
+Opened  20-12-2023 05:44:09
+Opened by  Jeevitha C
+Priority3 - Moderate
+Service  Ocado Store Pick
+Short description   Derange the below listed items before 12:30PM IST for the days
+State New
+Urgency3 - Medium 
+
+*************Ranging activity before 12:30 steps*****************
+13/03 INC1219646   7767 records
+
+
+sample incident : INC1225403
+
+Hi Everyone
+
+Regarding Ranging activity (during morning shift)
+
+Mail subject: URGENT : Daily Deranged SEL Report & Online reconciliation 
+get the range details from the above mentioned mail subject before 11:30am IST and raise an incident  to range it before 12:30PM IST
+Note: L2 need to perform this activity until we handover to l1.5 .
+
+sample inc:INC1178934 raised for the day
+
+
+Resolution Description:
+
+code: Workaround applied
+
+Resolution Notes :
+
+Issue description: Other - Default - Wesbhop manual ranging request - Hilmore House
+
+Initial analysis: check few mins in ranging api from provided user list
+
+Root Cause: SKUs/Stores be manually ranged to the store pick website effective date provided in the incident
+
+Impact Assessment: N/A
+
+Action taken: Run the space range utility for the effective date and we can see mins has been ranged. PFB Attached  result in the gsheet. Hence closing
+Ranging is completed.
+
+https://docs.google.com/spreadsheets/d/1Kzft8r416a5HTWaU5vhr3nZ1J0R7sanj/edit#gid=1502350391 	
+3.next we need to extract the data from our db.Use the query
+
+select store_id, count(receipt_number) sales_count, sum((basket->'header'->>'basketTotal')::decimal(8,2)) sales_value from basketservicev2schema.baskets b where date(checkout_date)= CURRENT_DATE-1 and organisation = 'FTO' group by  store_id;
+
+DB Configuration:
+
+SSL port: 10.244.17.76 
+
+Host name: sc-337473618329-pp-qoxlcgnrol5aq-rdscluster-110nw4c73hub9.cluster-c9crwrammwpi.eu-west-1.rds.amazonaws.com
+
+Username: bsktprd001_user
+
+Password: J4Wliy9w2PPodXV2
+
+DB Sheet:https://docs.google.com/spreadsheets/d/1MJ6vnnGelZgV_0MgTeRRSEjefvRuOI1f_HCF4V3EHSk/edit?pli=1#gid=0
+
+4.Get the data and paste it in the above sheet in the same tab under the heading "Basket DB sales  count"
+
+5. u can take reference from the previous tabs also
+
+
+RMS-Basket v2 data reconciliation
+MAil: FTO_Sales_Extract_
+
+select store_id, count(receipt_number) sales_count, sum((basket->'header'->>'basketTotal')::decimal(8,2)) sales_value from basketservicev2schema.baskets b where date(checkout_date)= CURRENT_DATE-1 and organisation = 'FTO' group by  store_id;
+=============================================
+
+
+==================
+
+SPACE ADAPTER CHECKS
+UTC timezone
+SOP:https://docs.google.com/document/d/1IxEHvUJBjUSmKzLrIvdOXh9CfR3tbFDqXCMPyuKIihQ/edit
+ 
+please perform it from today. infact now space adapter task will run early only(12:30PM IST) once it stops morning shift plp can do
+ 
+ 
+Hi Everyone-
+Space adapter morning checks query for ranged/deranged details of previous day(set timestamp in log insight). PFB. Thanks
+ 
+fields @timestamp, @message,@logStream
+| filter @message like /Ranging successful for product storeId/ 
+| sort @timestamp desc
+ 
+ 
+fields @timestamp, @message,@logStream
+| filter @message like /hence deranging the product/ 
+| sort @timestamp desc
+
+===========
+Zero Tote Fill Quantity
+
+SELECT count(*)
+FROM public.ocado_products_details where tote_fill = 0;
+
+===========
+FILE CHECKS:
+Add these file count in File checks.
+Both merchandising and integration count shoul be same and within the baseline(3 - 9)
+
+Prod-m-ordering->
+Amazon S3
+Buckets
+mprod.xxwmm.foodonline.merchandising.xxxxxxxxxx
+deliverysaver/
+customer/
+archive/
+cms_customer_membership_stage-20240615
+Amazon S3
+Buckets
+mprod.xxwmm.foodonline.integration.zzzzzzzzzz
+salesadapter/
+archive/
+
+=========
+findwhat: ^(.+)$
+replacewith:  '\1',
+
+
+
+
+=============
+
+AWS query - log insights
+log grps - can check logS
+
+=============
+
+
+
+============
+
+					Product masking Validation
+prod-digital account- cloudwatch
+clg-euw1-prd-storepick-osp-oos-product-availability-002
+A) Below query will give the count and details of products requested for masking
+fields @timestamp, @message,@logStream
+| filter @message like /PUT_ITEM_AVAILIBITY_OVERIDE_URL/
+| sort @timestamp desc
+Count of product requested for masking(count=588329)
+B) This query will give the count and details of how many products were successfully masked
+
+fields @timestamp, @message,@logStream
+| filter @message like /Successfully put overrides for ProductId/
+| sort @timestamp desc
+Count of product successfully masked(count=587994)
+C)This query will give the count and details of products which are failed to mask or masking being failed
+fields @timestamp, @message,@logStream
+| filter @message like /OSP_PRODUCT_AVAILABILITY_OOS_ALARM/
+| sort @timestamp desc
+Count of products failed to mask(count=335)
+
+SOP : https://docs.google.com/document/d/1nPGpVHkI9gfvut1FOF7-fuC-eAC8wcW-LKQE5UnvfaE/edit
+
+
+
+
+CMS(current date-1)
+
+Amazon S3
+Buckets
+mprod.xxwmm.foodonline.merchandising.xxxxxxxxxx
+deliverysaver/
+customer/
+archive/
+cms_customer_membership_stage-20240507
+
+
+
+
+
+
+Amazon S3
+Buckets
+mprod.xxwmm.foodonline.integration.zzzzzzzzzz
+salesadapter/
+archive/
+cms_customer_membership_stage-20240507
